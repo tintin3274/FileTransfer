@@ -15,8 +15,12 @@ public class Client {
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
 
-            sendFile("path/to/file1.pdf");
-            sendFile("path/to/file2.pdf");
+            sendFile("file1.pdf");
+            sendFile("file2.pdf");
+
+            sendFile("D:\\Pictures\\7.jpg");
+
+
 
             dataInputStream.close();
             dataInputStream.close();
@@ -30,6 +34,10 @@ public class Client {
         File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
 
+
+        // send file name
+        dataOutputStream.writeUTF(file.getName());
+
         // send file size
         dataOutputStream.writeLong(file.length());
         // break file into chunks
@@ -39,5 +47,6 @@ public class Client {
             dataOutputStream.flush();
         }
         fileInputStream.close();
+        System.out.println(dataInputStream.readUTF());
     }
 }
