@@ -50,13 +50,8 @@ public class Controller {
         if(!serverRunning){
             openServer();
             if(serverRunning) {
-                try {
-                    int amountFiles = dataInputStream.readInt();
-                    receiveFiles(amountFiles);
-                    closeConnection();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
+                receiveFiles();
+                closeConnection();
             }
         }
     }
@@ -70,7 +65,6 @@ public class Controller {
             }
         }
     }
-
 
     public void openServer() {
         try{
@@ -117,7 +111,6 @@ public class Controller {
         }
     }
 
-
     public void closeConnection() {
         try {
             if(serverRunning) {
@@ -138,7 +131,6 @@ public class Controller {
         System.out.println("Ready to Send or Receive");
     }
 
-
     private void sendFile(String path) throws Exception{
         int bytes = 0;
         File file = new File(path);
@@ -158,7 +150,7 @@ public class Controller {
         }
         fileInputStream.close();
 
-        logSend.setText(file.getName()+"\n"+logSend.getText());
+        logSend.setText(logSend.getText()+file.getName()+"\n");
         System.out.println("<Client> Complete Send: "+file.getName());
     }
 
@@ -180,7 +172,7 @@ public class Controller {
         }
         fileOutputStream.close();
 
-        logReceive.setText(fileName+"\n"+logReceive.getText());
+        logReceive.setText(logReceive.getText()+fileName+"\n");
         System.out.println("<Server> Complete Receive: "+fileName);
     }
 
@@ -188,29 +180,28 @@ public class Controller {
         String paths = textPath.getText().trim();
         String[] pathsSplit = paths.split(", ");
 
-        try {
-            dataOutputStream.writeInt(pathsSplit.length);
-
-            for(String path : pathsSplit) {
-                try {
-                    sendFile(path);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+        for(String path : pathsSplit) {
+            try {
+                sendFile(path);
             }
-        } catch (IOException e) {
-            e.printStackTrace();
+            catch (FileNotFoundException e) {
+                System.out.println("<Client> Not found path: "+path);
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+            }
         }
     }
 
-    private void receiveFiles(int amountFiles) {
-        while (amountFiles > 0) {
-            try {
+    private void receiveFiles() {
+        try {
+            while (dataInputStream.available() > 0) {
                 receiveFile();
-            } catch (Exception e) {
-                e.printStackTrace();
             }
-            amountFiles--;
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
