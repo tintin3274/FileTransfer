@@ -21,8 +21,8 @@ public class Controller {
     private boolean clientRunning;
     private static Socket clientSocket;
 
-    static ServerSocket serverSocket;
-    static Socket socket;
+    private static ServerSocket serverSocket;
+    private static Socket socket;
 
 
     @FXML TextArea textPath, logSend, logReceive;
@@ -75,6 +75,7 @@ public class Controller {
     public void openServer() {
         try{
             serverSocket = new ServerSocket(PORT);
+            serverRunning = true;
             System.out.println("===== Running Server =====");
             System.out.println("<Server> Waiting Client Connect");
 
@@ -85,10 +86,9 @@ public class Controller {
             System.out.println("<Server> "+clientSocket+" connected.");
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-
-            serverRunning = true;
         }
         catch (SocketTimeoutException e){
+            closeConnection();
             labelStatus.setText("Server Accept timed out");
             System.out.println("<Server> Accept timed out");
             System.out.println("===== Closed Server =====");
@@ -120,15 +120,13 @@ public class Controller {
 
     public void closeConnection() {
         try {
-            dataInputStream.close();
-            dataOutputStream.close();
             if(serverRunning) {
                 serverSocket.close();
-                clientSocket.close();
                 serverRunning = false;
                 System.out.println("===== Closed Server =====");
             }
             if(clientRunning) {
+                socket.close();
                 clientRunning = false;
                 System.out.println("===== Disconnected from Server =====");
             }
