@@ -10,6 +10,8 @@ import javafx.scene.input.ClipboardContent;
 
 import java.io.*;
 import java.net.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Controller {
     private static DataOutputStream dataOutputStream = null;
@@ -50,7 +52,12 @@ public class Controller {
         if(!serverRunning){
             openServer();
             if(serverRunning) {
-                receiveFiles();
+                try {
+                    int amountFiles = dataInputStream.readInt();
+                    receiveFiles(amountFiles);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 closeConnection();
             }
         }
@@ -82,10 +89,9 @@ public class Controller {
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
         }
         catch (SocketTimeoutException e){
-            closeConnection();
             labelStatus.setText("Server Accept timed out");
             System.out.println("<Server> Accept timed out");
-            System.out.println("===== Closed Server =====");
+            closeConnection();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -131,11 +137,9 @@ public class Controller {
         System.out.println("Ready to Send or Receive");
     }
 
-    private void sendFile(String path) throws Exception{
+    private void sendFile(File file) throws Exception{
         int bytes = 0;
-        File file = new File(path);
         FileInputStream fileInputStream = new FileInputStream(file);
-
 
         // send file name
         dataOutputStream.writeUTF(file.getName());
@@ -180,28 +184,32 @@ public class Controller {
         String paths = textPath.getText().trim();
         String[] pathsSplit = paths.split(", ");
 
+        List<File> files = new ArrayList<>();
         for(String path : pathsSplit) {
-            try {
-                sendFile(path);
-            }
-            catch (FileNotFoundException e) {
-                System.out.println("<Client> Not found path: "+path);
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+            File file = new File(path);
+            if(file.exists()) files.add(file);
+            else System.out.println("<Client> Not found path: "+path);
         }
-    }
-
-    private void receiveFiles() {
         try {
-            while (dataInputStream.available() > 0) {
-                receiveFile();
+            dataOutputStream.writeInt(files.size());
+            for(File file : files) {
+                sendFile(file);
             }
         } catch (IOException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    private void receiveFiles(int amountFiles) {
+        while (amountFiles > 0) {
+            try {
+                receiveFile();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            amountFiles--;
         }
     }
 
