@@ -26,8 +26,8 @@ public class Server {
 
 
             receiveFile();
-            receiveFile();
-            receiveFile();
+//            receiveFile();
+//            receiveFile();
 
 
             dataInputStream.close();

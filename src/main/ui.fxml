@@ -8,59 +8,49 @@
 
 <Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Controller">
    <children>
-      <TextField fx:id="textName" layoutX="273.0" layoutY="240.0" prefHeight="47.0" prefWidth="638.0" />
-      <Button fx:id="connectToBtn" layoutX="382.0" layoutY="305.0" mnemonicParsing="false" onAction="#connectSever" prefHeight="39.0" prefWidth="137.0" text="Connect">
+      <TextField fx:id="textName" layoutX="274.0" layoutY="230.0" prefHeight="47.0" prefWidth="638.0" />
+      <Button fx:id="sendBtn" layoutX="539.0" layoutY="411.0" mnemonicParsing="false" onAction="#send" prefHeight="39.0" prefWidth="137.0" text="Send">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>
       </Button>
-      <Button fx:id="sendBtn" layoutX="389.0" layoutY="647.0" mnemonicParsing="false" onAction="#sendFiles" prefHeight="39.0" prefWidth="137.0" text="Send">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-      </Button>
-      <TextField fx:id="textPath" layoutX="59.0" layoutY="544.0" prefHeight="89.0" prefWidth="467.0" />
-      <Button fx:id="browseBtn" layoutX="59.0" layoutY="647.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="137.0" text="Browse...">
+      <TextField fx:id="textPath" layoutX="360.0" layoutY="298.0" prefHeight="89.0" prefWidth="467.0" />
+      <Button fx:id="browseBtn" layoutX="843.0" layoutY="323.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="137.0" text="Browse...">
          <font>
             <Font name="System Bold" size="17.0" />
          </font>
       </Button>
-      <Label fx:id="labelReceive" layoutX="620.0" layoutY="596.0" prefHeight="251.0" prefWidth="352.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
+      <Label fx:id="labelReceive" layoutX="593.0" layoutY="598.0" prefHeight="251.0" prefWidth="352.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
          <font>
             <Font size="42.0" />
          </font>
       </Label>
-      <Label layoutX="226.0" layoutY="474.0" prefHeight="80.0" prefWidth="102.0" text="Send" textAlignment="CENTER">
+      <Label layoutX="89.0" layoutY="307.0" prefHeight="80.0" prefWidth="102.0" text="Send" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="42.0" />
          </font>
       </Label>
-      <Label layoutX="688.0" layoutY="474.0" prefHeight="80.0" prefWidth="182.0" text="Receive" textAlignment="CENTER">
+      <Label layoutX="89.0" layoutY="558.0" prefHeight="80.0" prefWidth="182.0" text="Receive" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="42.0" />
          </font>
       </Label>
-      <Label layoutX="620.0" layoutY="544.0" text="Log:">
+      <Label layoutX="476.0" layoutY="598.0" text="Log:">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Label layoutX="382.0" layoutY="193.0" prefHeight="40.0" prefWidth="364.0" text="Host name (or IP Address)" textAlignment="CENTER">
+      <Label layoutX="382.0" layoutY="181.0" prefHeight="40.0" prefWidth="364.0" text="Host name (or IP Address)" textAlignment="CENTER">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Label layoutX="397.0" layoutY="54.0" prefHeight="51.0" prefWidth="231.0" text="Connection" textAlignment="CENTER">
+      <Label layoutX="405.0" layoutY="54.0" prefHeight="62.0" prefWidth="246.0" text="File Transfer" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="42.0" />
          </font>
       </Label>
-      <Button fx:id="disconnectToBtn" layoutX="578.0" layoutY="305.0" mnemonicParsing="false" onAction="#closeConnection" prefHeight="39.0" prefWidth="137.0" text="Disconnect">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-      </Button>
-      <Label layoutX="46.0" layoutY="244.0" text="Connecting to: ">
+      <Label layoutX="46.0" layoutY="234.0" text="Connecting to: ">
          <font>
             <Font size="28.0" />
          </font>
@@ -70,27 +60,22 @@
             <Font size="35.0" />
          </font>
       </Label>
-      <Label layoutX="46.0" layoutY="395.0" text="Standby connection: ">
+      <Label layoutX="61.0" layoutY="652.0" text="Standby connection">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Button fx:id="connectStandBtn" layoutX="382.0" layoutY="395.0" mnemonicParsing="false" onAction="#openServer" prefHeight="39.0" prefWidth="137.0" text="Connect">
+      <Button fx:id="receiveBtn" layoutX="112.0" layoutY="740.0" mnemonicParsing="false" onAction="#Receive" prefHeight="39.0" prefWidth="137.0" text="Receive">
          <font>
             <Font name="System Bold" size="15.0" />
          </font>
       </Button>
-      <Button fx:id="disconnectStandBtn" layoutX="578.0" layoutY="395.0" mnemonicParsing="false" onAction="#closeConnection" prefHeight="39.0" prefWidth="137.0" text="Disconnect">
-         <font>
-            <Font name="System Bold" size="15.0" />
-         </font>
-      </Button>
-      <Label layoutX="59.0" layoutY="708.0" text="Log:">
+      <Label layoutX="35.0" layoutY="391.0" text="Log:">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Label fx:id="labelSend" layoutX="54.0" layoutY="752.0" prefHeight="115.0" prefWidth="467.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
+      <Label fx:id="labelSend" layoutX="35.0" layoutY="431.0" prefHeight="115.0" prefWidth="467.0" textAlignment="CENTER" textOverrun="CENTER_ELLIPSIS">
          <font>
             <Font size="42.0" />
          </font>
@@ -100,12 +85,12 @@
             <Font size="28.0" />
          </font>
       </Label>
-      <Label fx:id="labelStatus" layoutX="125.0" layoutY="115.0" prefHeight="51.0" prefWidth="857.0">
+      <Label fx:id="labelStatus" layoutX="125.0" layoutY="115.0" prefHeight="51.0" prefWidth="862.0">
          <font>
             <Font size="35.0" />
          </font>
       </Label>
-      <Label fx:id="labelIp" layoutX="111.0" layoutY="14.0" prefHeight="40.0" prefWidth="887.0" textAlignment="CENTER">
+      <Label fx:id="labelIp" layoutX="111.0" layoutY="14.0" prefHeight="40.0" prefWidth="862.0" textAlignment="CENTER">
          <font>
             <Font size="28.0" />
          </font>

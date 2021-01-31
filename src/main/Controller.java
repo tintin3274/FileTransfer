@@ -7,7 +7,6 @@ import javafx.scene.control.TextField;
 
 import java.io.*;
 import java.net.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Controller {
     private static DataOutputStream dataOutputStream = null;
@@ -15,17 +14,15 @@ public class Controller {
     private static String RECEIVE_DIRECTORY = "."+ File.separator+"Receive File"+File.separator;
     private static int PORT = 5000;
 
-    private static boolean serverRunning;
-    private static boolean clientRunning;
+    private boolean serverRunning;
+    private boolean clientRunning;
     private static Socket clientSocket;
 
-    private static Thread thread;
-    private static AtomicBoolean threadRunning = new AtomicBoolean(false);
-    private static AtomicBoolean waitingCommand = new AtomicBoolean(false);
+
 
     @FXML TextField textName, textPath;
     @FXML Label labelIp, labelStatus, labelSend, labelReceive;
-    @FXML Button connectToBtn, disconnectToBtn, connectStandBtn, disconnectStandBtn, browseBtn, sendBtn;
+    @FXML Button browseBtn, sendBtn, receiveBtn;
 
 
     @FXML
@@ -37,45 +34,38 @@ public class Controller {
             e.printStackTrace();
         }
 
-        labelStatus.setText("READY TO: ConnectServer or StandbyServer");
-
-
         serverRunning = false;
         clientRunning = false;
-
-        disconnectToBtn.setDisable(true);
-        disconnectStandBtn.setDisable(true);
-        browseBtn.setDisable(true);
-        sendBtn.setDisable(true);
+        labelStatus.setText("READY TO: ConnectServer or StandbyServer");
     }
 
-    private void createThread() {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                while (threadRunning.get()) {
-                    try {
-                        if(dataInputStream.available() > 0 && waitingCommand.get() == true) {
-                            int amountFiles = dataInputStream.readInt();
-                            receiveFiles(amountFiles);
-                            waitingCommand.set(false);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
+    public void Receive() {
+        if(!serverRunning){
+            openServer();
+            if(serverRunning) {
+                try {
+                    int amountFiles = dataInputStream.readInt();
+                    receiveFiles(amountFiles);
+                    closeConnection();
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        };
-        threadRunning.set(true);
-        waitingCommand.set(true);
-        thread = new Thread(runnable);
-        thread.start();
+        }
     }
 
-    public void openServer() {
-        connectToBtn.setDisable(true);
-        connectStandBtn.setDisable(true);
+    public void send() {
+        if(!clientRunning) {
+            connectSever();
+            if(clientRunning) {
+                sendFiles();
+                closeConnection();
+            }
+        }
+    }
 
+
+    public void openServer() {
         System.out.println("Waiting Client Connect");
         //labelStatus.setText("Waiting Client Connect");
 
@@ -87,29 +77,14 @@ public class Controller {
             System.out.println(clientSocket+" connected.");
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
-            createThread();
+
             serverRunning = true;
         } catch (Exception e){
             e.printStackTrace();
         }
-
-        if(serverRunning) {
-            disconnectStandBtn.setDisable(false);
-            browseBtn.setDisable(false);
-            sendBtn.setDisable(false);
-        }
-        else {
-            System.out.println("Timeout Waiting");
-            labelStatus.setText("Timeout Waiting");
-            connectToBtn.setDisable(false);
-            connectStandBtn.setDisable(false);
-        }
     }
 
     public void connectSever() {
-        connectToBtn.setDisable(true);
-        connectStandBtn.setDisable(true);
-
         System.out.println("Connecting to Server");
         //labelStatus.setText("Connecting to Server");
 
@@ -117,30 +92,17 @@ public class Controller {
         try(Socket socket = new Socket(serverIP,PORT)) {
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
-            createThread();
             clientRunning = true;
         }catch (Exception e){
             e.printStackTrace();
         }
-
-        if(clientRunning) {
-            disconnectToBtn.setDisable(false);
-            browseBtn.setDisable(false);
-            sendBtn.setDisable(false);
-        }
-        else {
-            System.out.println("Connected Fail");
-            labelStatus.setText("Connected Fail");
-            connectToBtn.setDisable(false);
-            connectStandBtn.setDisable(false);
-        }
     }
+
 
     public void closeConnection() {
         try {
             dataInputStream.close();
             dataOutputStream.close();
-            threadRunning.set(false);
             if(serverRunning) {
                 clientSocket.close();
                 serverRunning = false;
@@ -225,6 +187,5 @@ public class Controller {
             }
             amountFiles--;
         }
-        waitingCommand.set(true);
     }
 }
