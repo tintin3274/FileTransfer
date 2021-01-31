@@ -7,6 +7,8 @@ import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
 import javafx.scene.input.Clipboard;
 import javafx.scene.input.ClipboardContent;
+import javafx.stage.FileChooser;
+import javafx.stage.Stage;
 
 import java.io.*;
 import java.net.*;
@@ -84,14 +86,14 @@ public class Controller {
             serverSocket.setSoTimeout(10000);
             clientSocket = serverSocket.accept();
 
-            System.out.println("<Server> "+clientSocket+" connected.");
+            System.out.println("<Server> Client "+clientSocket+" connected.");
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
         }
         catch (SocketTimeoutException e){
-            labelStatus.setText("Server Accept timed out");
             System.out.println("<Server> Accept timed out");
             closeConnection();
+            labelStatus.setText("Server Accept timed out");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -103,6 +105,7 @@ public class Controller {
         try {
             socket = new Socket(serverIP,PORT);
             System.out.println("===== Connected to Server =====");
+            System.out.println("<Client> Server "+socket+" connected.");
             //labelStatus.setText("Connected to Server");
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
@@ -218,5 +221,22 @@ public class Controller {
         ClipboardContent content = new ClipboardContent();
         content.putString(labelIp.getText());
         clipboard.setContent(content);
+    }
+
+    public void browseFile(){
+        FileChooser fileChooser = new FileChooser();
+        List<File> chooseFile = fileChooser.showOpenMultipleDialog(new Stage());
+        List<String> path= new ArrayList<>();
+        for(File c:chooseFile){
+            path.add(c.getAbsolutePath());
+        }
+        String allPath=String.join(", ",path);
+        System.out.println(allPath);
+        if(textPath.getText().isEmpty()){
+            textPath.setText(allPath);
+        }
+        else{
+            textPath.setText(textPath.getText()+", "+allPath);
+        }
     }
 }

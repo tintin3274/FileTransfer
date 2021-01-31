@@ -19,7 +19,7 @@
             <Font name="System Bold" size="23.0" />
          </font>
       </Button>
-      <Button fx:id="browseBtn" layoutX="28.0" layoutY="516.0" mnemonicParsing="false" prefHeight="62.0" prefWidth="152.0" text="Browse...">
+      <Button fx:id="browseBtn" layoutX="28.0" layoutY="516.0" mnemonicParsing="false" onAction="#browseFile" prefHeight="62.0" prefWidth="152.0" text="Browse...">
          <font>
             <Font name="System Bold" size="23.0" />
          </font>
