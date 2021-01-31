@@ -3,7 +3,10 @@ package main;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
+import javafx.scene.input.Clipboard;
+import javafx.scene.input.ClipboardContent;
 
 import java.io.*;
 import java.net.*;
@@ -18,14 +21,13 @@ public class Controller {
     private boolean clientRunning;
     private static Socket clientSocket;
 
-    ServerSocket serverSocket;
-    Socket socket;
+    static ServerSocket serverSocket;
+    static Socket socket;
 
 
-
-
-    @FXML TextField textName, textPath;
-    @FXML Label labelIp, labelStatus, labelSend, labelReceive;
+    @FXML TextArea textPath, logSend, logReceive;
+    @FXML TextField textName;
+    @FXML Label labelIp, labelStatus;
     @FXML Button browseBtn, sendBtn, receiveBtn;
 
 
@@ -40,7 +42,8 @@ public class Controller {
 
         serverRunning = false;
         clientRunning = false;
-        labelStatus.setText("READY TO: ConnectServer or StandbyServer");
+        labelStatus.setText("Ready to Send or Receive");
+        System.out.println("Ready to Send or Receive");
     }
 
     public void Receive() {
@@ -70,36 +73,46 @@ public class Controller {
 
 
     public void openServer() {
-        System.out.println("Waiting Client Connect");
-        //labelStatus.setText("Waiting Client Connect");
-
         try{
             serverSocket = new ServerSocket(PORT);
-            System.out.println("listening to port:"+PORT);
+            System.out.println("===== Running Server =====");
+            System.out.println("<Server> Waiting Client Connect");
+
+            System.out.println("<Server> listening to port:"+PORT);
             serverSocket.setSoTimeout(10000);
             clientSocket = serverSocket.accept();
 
-            System.out.println(clientSocket+" connected.");
+            System.out.println("<Server> "+clientSocket+" connected.");
             dataInputStream = new DataInputStream(clientSocket.getInputStream());
             dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
 
             serverRunning = true;
-        } catch (Exception e){
+        }
+        catch (SocketTimeoutException e){
+            labelStatus.setText("Server Accept timed out");
+            System.out.println("<Server> Accept timed out");
+            System.out.println("===== Closed Server =====");
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
     }
 
     public void connectSever() {
-        System.out.println("Connecting to Server");
-        //labelStatus.setText("Connecting to Server");
-
-        String serverIP = textName.getText();
+        String serverIP = textName.getText().toLowerCase().trim();
         try {
             socket = new Socket(serverIP,PORT);
+            System.out.println("===== Connected to Server =====");
+            //labelStatus.setText("Connected to Server");
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
             clientRunning = true;
-        }catch (Exception e){
+        }
+        catch (ConnectException e){
+            labelStatus.setText("Connection refused");
+            System.out.println("!!!!! Connection refused !!!!!");
+        }
+        catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -113,14 +126,18 @@ public class Controller {
                 serverSocket.close();
                 clientSocket.close();
                 serverRunning = false;
+                System.out.println("===== Closed Server =====");
             }
             if(clientRunning) {
                 clientRunning = false;
+                System.out.println("===== Disconnected from Server =====");
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
+        labelStatus.setText("Ready to Send or Receive");
+        System.out.println("Ready to Send or Receive");
     }
 
 
@@ -142,7 +159,9 @@ public class Controller {
             dataOutputStream.flush();
         }
         fileInputStream.close();
-        System.out.println(dataInputStream.readUTF());
+
+        logSend.setText(file.getName()+"\n"+logSend.getText());
+        System.out.println("<Client> Complete Send: "+file.getName());
     }
 
     private void receiveFile() throws Exception{
@@ -162,11 +181,13 @@ public class Controller {
             size -= bytes;      // read upto file size
         }
         fileOutputStream.close();
-        dataOutputStream.writeUTF("Complete: "+fileName);
+
+        logReceive.setText(fileName+"\n"+logReceive.getText());
+        System.out.println("<Server> Complete Receive: "+fileName);
     }
 
     public void sendFiles() {
-        String paths = textPath.getText();
+        String paths = textPath.getText().trim();
         String[] pathsSplit = paths.split(", ");
 
         try {
@@ -188,11 +209,17 @@ public class Controller {
         while (amountFiles > 0) {
             try {
                 receiveFile();
-            }
-            catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
             amountFiles--;
         }
+    }
+
+    public void copyIP() {
+        Clipboard clipboard = Clipboard.getSystemClipboard();
+        ClipboardContent content = new ClipboardContent();
+        content.putString(labelIp.getText());
+        clipboard.setContent(content);
     }
 }
