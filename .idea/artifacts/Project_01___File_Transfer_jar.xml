@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="Project 01 - File Transfer:jar">
+    <output-path>$PROJECT_DIR$/out/artifacts/Project_01___File_Transfer_jar</output-path>
+    <root id="archive" name="Project 01 - File Transfer.jar">
+      <element id="module-output" name="Project 01 - File Transfer" />
+    </root>
+  </artifact>
+</component>

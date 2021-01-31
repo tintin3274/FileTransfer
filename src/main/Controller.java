@@ -18,6 +18,10 @@ public class Controller {
     private boolean clientRunning;
     private static Socket clientSocket;
 
+    ServerSocket serverSocket;
+    Socket socket;
+
+
 
 
     @FXML TextField textName, textPath;
@@ -69,7 +73,8 @@ public class Controller {
         System.out.println("Waiting Client Connect");
         //labelStatus.setText("Waiting Client Connect");
 
-        try(ServerSocket serverSocket = new ServerSocket(PORT)){
+        try{
+            serverSocket = new ServerSocket(PORT);
             System.out.println("listening to port:"+PORT);
             serverSocket.setSoTimeout(10000);
             clientSocket = serverSocket.accept();
@@ -89,7 +94,8 @@ public class Controller {
         //labelStatus.setText("Connecting to Server");
 
         String serverIP = textName.getText();
-        try(Socket socket = new Socket(serverIP,PORT)) {
+        try {
+            socket = new Socket(serverIP,PORT);
             dataInputStream = new DataInputStream(socket.getInputStream());
             dataOutputStream = new DataOutputStream(socket.getOutputStream());
             clientRunning = true;
@@ -104,6 +110,7 @@ public class Controller {
             dataInputStream.close();
             dataOutputStream.close();
             if(serverRunning) {
+                serverSocket.close();
                 clientSocket.close();
                 serverRunning = false;
             }
