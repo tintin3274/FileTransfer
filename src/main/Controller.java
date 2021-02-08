@@ -1,5 +1,6 @@
 package main;
 
+import javafx.application.Platform;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -16,27 +17,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Controller {
-    private static DataOutputStream dataOutputStream = null;
-    private static DataInputStream dataInputStream = null;
-    private static String RECEIVE_DIRECTORY = "."+ File.separator+"Receive File"+File.separator;
     private static int PORT = 5000;
 
-    private boolean serverRunning;
-    private boolean clientRunning;
-    private static Socket clientSocket;
+    private static boolean serverRunning;
+    private static boolean clientRunning;
 
     private static ServerSocket serverSocket;
     private static Socket socket;
+    private static SocketThead socketThead;
 
+    public static TextArea TEXT_LOG;
+    private static Button OPEN_CONNECTION_BTN, CONNECT_BTN, DISCONNECT_BTN;
 
-    @FXML TextArea textPath, logSend, logReceive;
+    @FXML TextArea textPath, textLog;
     @FXML TextField textName;
-    @FXML Label labelIp, labelStatus;
-    @FXML Button browseBtn, sendBtn, receiveBtn;
+    @FXML Label labelIp;
+    @FXML Button openConnectionBtn, connectBtn, disconnectBtn, browseBtn, sendBtn, clearBtn;
 
 
     @FXML
-    public void initialize() {
+    public void initialize() throws IOException {
         try(DatagramSocket socket = new DatagramSocket()){
             socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
             labelIp.setText(socket.getLocalAddress().getHostAddress());
@@ -44,56 +44,44 @@ public class Controller {
             e.printStackTrace();
         }
 
+        TEXT_LOG = textLog;
+        OPEN_CONNECTION_BTN = openConnectionBtn;
+        CONNECT_BTN = connectBtn;
+        DISCONNECT_BTN = disconnectBtn;
+
         serverRunning = false;
         clientRunning = false;
-        labelStatus.setText("Ready to Send or Receive");
-        System.out.println("Ready to Send or Receive");
-    }
-
-    public void Receive() {
-        if(!serverRunning){
-            openServer();
-            if(serverRunning) {
-                try {
-                    int amountFiles = dataInputStream.readInt();
-                    receiveFiles(amountFiles);
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                closeConnection();
-            }
-        }
+        disconnectBtn.setDisable(true);
     }
 
     public void send() {
-        if(!clientRunning) {
-            connectSever();
-            if(clientRunning) {
-                sendFiles();
-                closeConnection();
-            }
-        }
+        if(socketThead != null) socketThead.sendFiles(textPath.getText());
     }
 
     public void openServer() {
         try{
+            System.out.println("Waiting connect listening to port:"+PORT);
+            updateLog("Waiting connect listening to port:"+PORT);
+
             serverSocket = new ServerSocket(PORT);
             serverRunning = true;
-            System.out.println("===== Running Server =====");
-            System.out.println("<Server> Waiting Client Connect");
-
-            System.out.println("<Server> listening to port:"+PORT);
             serverSocket.setSoTimeout(10000);
-            clientSocket = serverSocket.accept();
+            socket = serverSocket.accept();
 
-            System.out.println("<Server> Client "+clientSocket+" connected.");
-            dataInputStream = new DataInputStream(clientSocket.getInputStream());
-            dataOutputStream = new DataOutputStream(clientSocket.getOutputStream());
+            System.out.println(socket+" connected");
+            updateLog(socket+" connected");
+
+            System.out.println("=== Ready to Send or Receive Files ===");
+            updateLog("=== Ready to Send or Receive Files ===");
+
+            socketThead = new SocketThead(socket);
+            socketThead.start();
+            lockButtonConnect();
         }
         catch (SocketTimeoutException e){
-            System.out.println("<Server> Accept timed out");
+            System.out.println("Accept timed out");
+            updateLog("Accept timed out");
             closeConnection();
-            labelStatus.setText("Server Accept timed out");
         }
         catch (Exception e){
             e.printStackTrace();
@@ -103,120 +91,57 @@ public class Controller {
     public void connectSever() {
         String serverIP = textName.getText().toLowerCase().trim();
         try {
+            System.out.println("Connecting to "+serverIP+" port:"+PORT);
+            updateLog("Connecting to "+serverIP+" port:"+PORT);
+
             socket = new Socket(serverIP,PORT);
-            System.out.println("===== Connected to Server =====");
-            System.out.println("<Client> Server "+socket+" connected.");
-            //labelStatus.setText("Connected to Server");
-            dataInputStream = new DataInputStream(socket.getInputStream());
-            dataOutputStream = new DataOutputStream(socket.getOutputStream());
             clientRunning = true;
+
+            System.out.println(socket+" connected");
+            updateLog(socket+" connected");
+
+            System.out.println("=== Ready to Send or Receive Files ===");
+            updateLog("=== Ready to Send or Receive Files ===");
+
+            socketThead = new SocketThead(socket);
+            socketThead.start();
+            lockButtonConnect();
         }
         catch (ConnectException e){
-            labelStatus.setText("Connection refused");
-            System.out.println("!!!!! Connection refused !!!!!");
+            System.out.println("Connection refused");
+            updateLog("Connection refused");
+            e.printStackTrace();
         }
         catch (Exception e){
             e.printStackTrace();
         }
     }
 
-    public void closeConnection() {
+    public void closeConnectionClk() {
+        socketThead.stopConnection();
+        closeConnection();
+    }
+
+    public static void closeConnection() {
         try {
+            if(socketThead != null) {
+                socketThead.stop();
+                System.out.println("=== Closed Connection ===");
+                updateLog("=== Closed Connection ===");
+            }
             if(serverRunning) {
                 serverSocket.close();
                 serverRunning = false;
-                System.out.println("===== Closed Server =====");
             }
             if(clientRunning) {
                 socket.close();
                 clientRunning = false;
-                System.out.println("===== Disconnected from Server =====");
             }
         }
         catch (Exception e) {
             e.printStackTrace();
         }
-        labelStatus.setText("Ready to Send or Receive");
-        System.out.println("Ready to Send or Receive");
-    }
-
-    private void sendFile(File file) throws Exception{
-        int bytes = 0;
-        FileInputStream fileInputStream = new FileInputStream(file);
-
-        // send file name
-        dataOutputStream.writeUTF(file.getName());
-
-        // send file size
-        dataOutputStream.writeLong(file.length());
-        // break file into chunks
-        byte[] buffer = new byte[4*1024];
-        while ((bytes=fileInputStream.read(buffer))!=-1){
-            dataOutputStream.write(buffer,0,bytes);
-            dataOutputStream.flush();
-        }
-        fileInputStream.close();
-
-        logSend.setText(logSend.getText()+"Complete Send: "+file.getName()+"\n");
-        System.out.println("<Client> Complete Send: "+file.getName());
-    }
-
-    private void receiveFile() throws Exception{
-        int bytes = 0;
-
-        File directory = new File(RECEIVE_DIRECTORY);   // create directory
-        directory.mkdir();
-
-        String fileName = dataInputStream.readUTF();    // read file name
-        FileOutputStream fileOutputStream = new FileOutputStream(RECEIVE_DIRECTORY+fileName);
-
-
-        long size = dataInputStream.readLong();     // read file size
-        byte[] buffer = new byte[4*1024];
-        while (size > 0 && (bytes = dataInputStream.read(buffer, 0, (int)Math.min(buffer.length, size))) != -1) {
-            fileOutputStream.write(buffer,0,bytes);
-            size -= bytes;      // read upto file size
-        }
-        fileOutputStream.close();
-
-        logReceive.setText(logReceive.getText()+fileName+"\n");
-        System.out.println("<Server> Complete Receive: "+fileName);
-    }
-
-    public void sendFiles() {
-        String paths = textPath.getText().trim();
-        String[] pathsSplit = paths.split(", ");
-
-        List<File> files = new ArrayList<>();
-        for(String path : pathsSplit) {
-            File file = new File(path);
-            if(file.exists()) files.add(file);
-            else {
-                System.out.println("<Client> Not found path: "+path);
-                logSend.setText(logSend.getText()+"Not found path: "+path+"\n");
-            }
-        }
-        try {
-            dataOutputStream.writeInt(files.size());
-            for(File file : files) {
-                sendFile(file);
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private void receiveFiles(int amountFiles) {
-        while (amountFiles > 0) {
-            try {
-                receiveFile();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            amountFiles--;
-        }
+        unlockButtonConnect();
     }
 
     public void copyIP() {
@@ -226,19 +151,46 @@ public class Controller {
         clipboard.setContent(content);
     }
 
-    public void browseFile(){
+    public void browseFile() {
         FileChooser fileChooser = new FileChooser();
         List<File> chooseFile = fileChooser.showOpenMultipleDialog(new Stage());
-        List<String> path= new ArrayList<>();
-        for(File c:chooseFile){
-            path.add(c.getAbsolutePath());
+        if(chooseFile != null) {
+            List<String> path= new ArrayList<>();
+            for(File c:chooseFile){
+                path.add(c.getAbsolutePath());
+            }
+            String allPath=String.join(", ",path);
+            if(textPath.getText().isEmpty()){
+                textPath.setText(allPath);
+            }
+            else{
+                textPath.setText(textPath.getText()+", "+allPath);
+            }
         }
-        String allPath=String.join(", ",path);
-        if(textPath.getText().isEmpty()){
-            textPath.setText(allPath);
-        }
-        else{
-            textPath.setText(textPath.getText()+", "+allPath);
-        }
+    }
+
+    public void clear() {
+        textPath.setText("");
+    }
+
+    private static void updateLog(String text) {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                TEXT_LOG.appendText(text+"\n");
+            }
+        });
+    }
+
+    private void lockButtonConnect() {
+        CONNECT_BTN.setDisable(true);
+        OPEN_CONNECTION_BTN.setDisable(true);
+        DISCONNECT_BTN.setDisable(false);
+    }
+
+    private static void unlockButtonConnect() {
+        CONNECT_BTN.setDisable(false);
+        OPEN_CONNECTION_BTN.setDisable(false);
+        DISCONNECT_BTN.setDisable(true);
     }
 }
