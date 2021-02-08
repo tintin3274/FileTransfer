@@ -1,0 +1,14 @@
+#pane{
+    -fx-background-color:#EBECF0;
+
+}
+.label{
+    /*-fx-text-fill: white;*/
+}
+.button{
+    -fx-background-color:#D20772;
+    -fx-text-fill: white;
+}
+#sendPane{
+
+}

@@ -157,7 +157,7 @@ public class Controller {
         }
         fileInputStream.close();
 
-        logSend.setText(logSend.getText()+file.getName()+"\n");
+        logSend.setText(logSend.getText()+"Complete Send: "+file.getName()+"\n");
         System.out.println("<Client> Complete Send: "+file.getName());
     }
 
@@ -191,7 +191,10 @@ public class Controller {
         for(String path : pathsSplit) {
             File file = new File(path);
             if(file.exists()) files.add(file);
-            else System.out.println("<Client> Not found path: "+path);
+            else {
+                System.out.println("<Client> Not found path: "+path);
+                logSend.setText(logSend.getText()+"Not found path: "+path+"\n");
+            }
         }
         try {
             dataOutputStream.writeInt(files.size());
@@ -231,7 +234,6 @@ public class Controller {
             path.add(c.getAbsolutePath());
         }
         String allPath=String.join(", ",path);
-        System.out.println(allPath);
         if(textPath.getText().isEmpty()){
             textPath.setText(allPath);
         }

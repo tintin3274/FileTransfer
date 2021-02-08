@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.Pane?>
 <?import javafx.scene.text.Font?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Controller">
+<Pane fx:id="pane" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="900.0" prefWidth="1024.0" stylesheets="@../theme.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="main.Controller">
    <children>
       <TextField fx:id="textName" layoutX="215.0" layoutY="279.0" prefHeight="47.0" prefWidth="785.0">
          <font>
@@ -18,33 +18,39 @@
          <font>
             <Font name="System Bold" size="23.0" />
          </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
       </Button>
       <Button fx:id="browseBtn" layoutX="28.0" layoutY="516.0" mnemonicParsing="false" onAction="#browseFile" prefHeight="62.0" prefWidth="152.0" text="Browse...">
          <font>
             <Font name="System Bold" size="23.0" />
          </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
       </Button>
-      <Label layoutX="28.0" layoutY="187.0" prefHeight="80.0" prefWidth="102.0" text="Send" textAlignment="CENTER">
+      <Label layoutX="226.0" layoutY="187.0" prefHeight="80.0" prefWidth="102.0" text="Send" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="42.0" />
          </font>
       </Label>
-      <Label alignment="CENTER" layoutX="28.0" layoutY="646.0" prefHeight="80.0" prefWidth="152.0" text="Receive" textAlignment="CENTER">
+      <Label alignment="CENTER" layoutX="201.0" layoutY="634.0" prefHeight="80.0" prefWidth="152.0" text="Receive" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="42.0" />
          </font>
       </Label>
-      <Label layoutX="544.0" layoutY="624.0" text="Log:">
+      <Label layoutX="544.0" layoutY="624.0" text="Receive Log:">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Label layoutX="388.0" layoutY="227.0" prefHeight="40.0" prefWidth="364.0" text="Host name (or IP Address)" textAlignment="CENTER">
+      <Label layoutX="412.0" layoutY="239.0" prefHeight="40.0" prefWidth="364.0" text="Host name (or IP Address)" textAlignment="CENTER">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Label layoutX="405.0" layoutY="54.0" prefHeight="62.0" prefWidth="246.0" text="File Transfer" textAlignment="CENTER">
+      <Label layoutX="405.0" layoutY="43.0" prefHeight="62.0" prefWidth="246.0" text="File Transfer" textAlignment="CENTER">
          <font>
             <Font name="System Bold" size="42.0" />
          </font>
@@ -54,22 +60,25 @@
             <Font size="28.0" />
          </font>
       </Label>
-      <Label layoutX="77.0" layoutY="115.0" text="Status:">
+      <Label layoutX="137.0" layoutY="115.0" text="Status:">
          <font>
             <Font size="35.0" />
          </font>
       </Label>
-      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="223.0" layoutY="751.0" prefHeight="40.0" prefWidth="253.0" text="Standby connection">
+      <Label alignment="CENTER" contentDisplay="CENTER" layoutX="54.0" layoutY="751.0" prefHeight="40.0" prefWidth="253.0" text="Standby connection">
          <font>
             <Font size="28.0" />
          </font>
       </Label>
-      <Button fx:id="receiveBtn" alignment="CENTER" layoutX="28.0" layoutY="740.0" mnemonicParsing="false" onAction="#Receive" prefHeight="62.0" prefWidth="152.0" text="Receive">
+      <Button fx:id="receiveBtn" alignment="CENTER" layoutX="336.0" layoutY="740.0" mnemonicParsing="false" onAction="#Receive" prefHeight="62.0" prefWidth="152.0" text="Receive">
          <font>
             <Font name="System Bold" size="23.0" />
          </font>
+         <cursor>
+            <Cursor fx:constant="HAND" />
+         </cursor>
       </Button>
-      <Label layoutX="544.0" layoutY="335.0" text="Log:">
+      <Label layoutX="544.0" layoutY="335.0" text="Send Log:">
          <font>
             <Font size="28.0" />
          </font>
@@ -79,7 +88,7 @@
             <Font size="28.0" />
          </font>
       </Label>
-      <Label fx:id="labelStatus" layoutX="204.0" layoutY="115.0" prefHeight="51.0" prefWidth="785.0">
+      <Label fx:id="labelStatus" layoutX="247.0" layoutY="115.0" prefHeight="51.0" prefWidth="673.0">
          <font>
             <Font size="35.0" />
          </font>
