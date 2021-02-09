@@ -65,23 +65,34 @@ public class Controller {
 
             serverSocket = new ServerSocket(PORT);
             serverRunning = true;
-            serverSocket.setSoTimeout(10000);
-            socket = serverSocket.accept();
 
-            System.out.println(socket+" connected");
-            updateLog(socket+" connected");
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        serverSocket.setSoTimeout(10000);
+                        socket = serverSocket.accept();
+                        System.out.println(socket+" connected");
+                        updateLog(socket+" connected");
 
-            System.out.println("=== Ready to Send or Receive Files ===");
-            updateLog("=== Ready to Send or Receive Files ===");
+                        System.out.println("=== Ready to Send or Receive Files ===");
+                        updateLog("=== Ready to Send or Receive Files ===");
 
-            socketThead = new SocketThead(socket);
-            socketThead.start();
+                        socketThead = new SocketThead(socket);
+                        socketThead.start();
+                    } catch (SocketTimeoutException e){
+                        System.out.println("Accept timed out");
+                        updateLog("Accept timed out");
+                        closeConnection();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
             lockButtonConnect();
-        }
-        catch (SocketTimeoutException e){
-            System.out.println("Accept timed out");
-            updateLog("Accept timed out");
-            closeConnection();
+            disconnectBtn.setDisable(true);
+            thread.start();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -94,22 +105,34 @@ public class Controller {
             System.out.println("Connecting to "+serverIP+" port:"+PORT);
             updateLog("Connecting to "+serverIP+" port:"+PORT);
 
-            socket = new Socket(serverIP,PORT);
-            clientRunning = true;
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        socket = new Socket(serverIP,PORT);
+                        clientRunning = true;
+                        System.out.println(socket+" connected");
+                        updateLog(socket+" connected");
 
-            System.out.println(socket+" connected");
-            updateLog(socket+" connected");
+                        System.out.println("=== Ready to Send or Receive Files ===");
+                        updateLog("=== Ready to Send or Receive Files ===");
 
-            System.out.println("=== Ready to Send or Receive Files ===");
-            updateLog("=== Ready to Send or Receive Files ===");
+                        socketThead = new SocketThead(socket);
+                        socketThead.start();
 
-            socketThead = new SocketThead(socket);
-            socketThead.start();
+                    }  catch (ConnectException e){
+                        System.out.println("Connection refused");
+                        updateLog("Connection refused");
+                        closeConnection();
+                    }   catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            });
+
             lockButtonConnect();
-        }
-        catch (ConnectException e){
-            System.out.println("Connection refused");
-            updateLog("Connection refused");
+            disconnectBtn.setDisable(true);
+            thread.start();
         }
         catch (Exception e){
             e.printStackTrace();
@@ -117,7 +140,9 @@ public class Controller {
     }
 
     public void closeConnectionClk() {
-        socketThead.stopConnection();
+        if(socketThead != null) {
+            socketThead.stopConnection();
+        }
         closeConnection();
     }
 
