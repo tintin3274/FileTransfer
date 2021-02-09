@@ -10,8 +10,7 @@ public class SocketThead implements Runnable {
     private Thread worker;
     private final AtomicBoolean running = new AtomicBoolean(false);
     private final AtomicBoolean sending = new AtomicBoolean(false);
-    private int interval = 1000;
-
+    private final int interval = 1000;
 
     private static String RECEIVE_DIRECTORY = "."+ File.separator+"Receive File"+File.separator;
     private Socket socket;
@@ -98,7 +97,6 @@ public class SocketThead implements Runnable {
 
     private synchronized void receiveFile() throws Exception{
         int bytes = 0;
-
         File directory = new File(RECEIVE_DIRECTORY);   // create directory
         directory.mkdir();
 

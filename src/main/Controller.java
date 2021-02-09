@@ -34,7 +34,6 @@ public class Controller {
     @FXML Label labelIp;
     @FXML Button openConnectionBtn, connectBtn, disconnectBtn, browseBtn, sendBtn, clearBtn;
 
-
     @FXML
     public void initialize() throws IOException {
         try(DatagramSocket socket = new DatagramSocket()){
@@ -91,7 +90,6 @@ public class Controller {
             });
 
             lockButtonConnect();
-            disconnectBtn.setDisable(true);
             thread.start();
         }
         catch (Exception e){
@@ -120,18 +118,17 @@ public class Controller {
                         socketThead = new SocketThead(socket);
                         socketThead.start();
 
-                    }  catch (ConnectException e){
+                    } catch (ConnectException e){
                         System.out.println("Connection refused");
                         updateLog("Connection refused");
                         closeConnection();
-                    }   catch (IOException e) {
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }
             });
 
             lockButtonConnect();
-            disconnectBtn.setDisable(true);
             thread.start();
         }
         catch (Exception e){
