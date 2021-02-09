@@ -9,6 +9,12 @@
     -fx-background-color:#D20772;
     -fx-text-fill: white;
 }
-#sendPane{
-
+#disconnectBtn{
+    -fx-background-color: #dd2e2e;
+}
+#openConnectionBtn{
+    -fx-background-color: #2b7cd2;
+}
+#connectBtn{
+    -fx-background-color: #24c852;
 }

@@ -110,7 +110,6 @@ public class Controller {
         catch (ConnectException e){
             System.out.println("Connection refused");
             updateLog("Connection refused");
-            e.printStackTrace();
         }
         catch (Exception e){
             e.printStackTrace();
